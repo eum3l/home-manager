@@ -16,15 +16,16 @@ let
       filter (a: a.mu.enable) (attrValues config.accounts.email.accounts);
     addrs = map (a: a.address) muAccounts;
     # Construct list of lists containing email aliases, and flatten
-    aliases = flatten (map (a: a.aliases) muAccounts);
+    aliases = map (alias: alias.address or alias) (flatten (map (a: a.aliases) muAccounts));
     # Sort the list
   in sort lessThan (addrs ++ aliases);
 
   # Takes the list of accounts with mu.enable = true, and generates a
   # command-line flag for initializing the mu database.
   myAddresses = let
-    # Prefix --my-address= to each account's address and all defined aliases
+    # Prefix --my-address= to each account's address AND all defined aliases
     addMyAddress = map (addr: "--my-address=" + addr) sortedAddresses;
+
   in concatStringsSep " " addMyAddress;
 
 in {
